@@ -52,9 +52,9 @@ pipeline {
                 sh """
                 docker run -itd --name ${containerName} --rm -e MYSQL_ROOT_PASSWORD=$params.MYSQL_PASSWORD -p $params.MYSQL_PORT:3306 $params.ENVIRONMENT_NAME:latest
                 """
-                sh """
-                while ! nc -z localhost 3306; do sleep 0.1;done 
-                """
+                //sh """
+                //while ! nc -z localhost 3306; do sleep 0.1;done 
+                //"""
                 sh """
                 docker exec ${containerName} /bin/bash -c 'mysql --user="root" --password="$params.MYSQL_PASSWORD" < /scripts/create_developer.sql'
                 """
