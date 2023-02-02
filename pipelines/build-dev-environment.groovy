@@ -21,7 +21,7 @@ pipeline {
               script {
                 def port = Integer.parseInt(params.MYSQL_PORT)
                 if (!(port >= 0 && port <= 65535)) {
-                    throw new IllegalArgumentException("Invalid port number: " + name + ". Port must be between 0 and 65535.")
+                    throw new IllegalArgumentException("Invalid port number: " + params.MYSQL_PORT + ". Port must be between 0 and 65535.")
                 }
                 // Empty root password forbidden
                 String password = params.MYSQL_PASSWORD
