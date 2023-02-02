@@ -16,6 +16,21 @@ pipeline {
     }
   
     stages {
+         stage('Check parameters') {
+            steps {     
+              script {
+                def port = Integer.parseInt(System.getenv("MYSQL_PORT"))
+                if !(port >= 0 && port <= 65535) {
+                    throw new IllegalArgumentException("Invalid port number: " + name + ". Port must be between 0 and 65535.")
+                }
+                // Empty root password forbidden
+                String password = System.getenv("MYSQL_PASSWORD")
+                if (password.trim().isEmpty()) {
+                  throw new IllegalArgumentException("The MYSQL_PASSWORD parameter cannot be empty.")
+                }
+              }
+            }
+        }
         stage('Checkout GIT repository') {
             steps {     
               script {
