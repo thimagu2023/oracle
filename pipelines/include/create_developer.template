@@ -2,3 +2,19 @@ CREATE DATABASE DEVAPP;
 CREATE USER 'developer'@'localhost' IDENTIFIED BY '<PASSOWRD>';
 GRANT CREATE, ALTER, DROP, INSERT, UPDATE, DELETE, SELECT, REFERENCES, RELOAD on *.* TO 'developer'@'localhost' WITH GRANT OPTION;
 FLUSH PRIVILEGES;
+
+CREATE TABLE departments (
+    id int NOT NULL,
+    DEPT int,
+    DEPT_NAME varchar(250),
+    CONSTRAINT DEPT CHECK (DEPT >= 0 AND DEPT <= 9999)
+);
+
+# Adds 5 example departments
+INSERT INTO Persons (id, DEPT, DEPT_NAME)
+VALUES
+  (1, 1000, 'Department A'),
+  (2, 2000, 'Department B'),
+  (3, 3000, 'Department C'),
+  (4, 4000, 'Department D'),
+  (5, 5000, 'Department E');
