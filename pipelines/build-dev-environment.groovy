@@ -14,8 +14,8 @@ pipeline {
             description: 'Choose the database engine to use'
         )
         string name: 'ENVIRONMENT_NAME', trim: true     
-        password defaultValue: '', description: 'Password to use for MySQL container - root user', name: 'MYSQL_PASSWORD'
-        string name: 'MYSQL_PORT', trim: true  
+        password defaultValue: '', description: 'Password to use for MySQL container - root user', name: 'PASSWORD'
+        string name: 'PORT', trim: true  
 
         booleanParam(name: 'SKIP_STEP_1', defaultValue: false, description: 'STEP 1 - RE-CREATE DOCKER IMAGE')
     }
@@ -24,14 +24,14 @@ pipeline {
          stage('Check parameters') {
             steps {     
               script {
-                def port = Integer.parseInt(params.MYSQL_PORT)
+                def port = Integer.parseInt(params.PORT)
                 if (!(port >= 0 && port <= 65535)) {
-                    throw new IllegalArgumentException("Invalid port number: " + params.MYSQL_PORT + ". Port must be between 0 and 65535.")
+                    throw new IllegalArgumentException("Invalid port number: " + params.PORT + ". Port must be between 0 and 65535.")
                 }
                 // Empty root password forbidden
-                String password = params.MYSQL_PASSWORD
+                String password = params.PASSWORD
                 if (password.trim().isEmpty()) {
-                  throw new IllegalArgumentException("The MYSQL_PASSWORD parameter cannot be empty.")
+                  throw new IllegalArgumentException("The PASSWORD parameter cannot be empty.")
                 }
               }
             }
@@ -48,9 +48,9 @@ pipeline {
             steps {     
               script {
                 if (!params.SKIP_STEP_1){    
-                    echo "Creating docker image with name $params.ENVIRONMENT_NAME using port: $params.MYSQL_PORT"
+                    echo "Creating docker image with name $params.ENVIRONMENT_NAME using port: $params.PORT"
                     sh """
-                    sed 's/<PASSWORD>/$params.MYSQL_PASSWORD/g' pipelines/include/create_developer.template > pipelines/include/create_developer.sql
+                    sed 's/<PASSWORD>/$params.PASSWORD/g' pipelines/include/create_developer.template > pipelines/include/create_developer.sql
                     """
 
                     if (params.DB_ENGINE == 'mysql') {
@@ -82,36 +82,36 @@ pipeline {
                 
                 if (params.DB_ENGINE == 'mysql') {
                     sh """
-                    docker run -itd --name ${containerName} --rm -e MYSQL_ROOT_PASSWORD=$params.MYSQL_PASSWORD -p $params.MYSQL_PORT:3306 $params.ENVIRONMENT_NAME:latest
+                    docker run -itd --name ${containerName} --rm -e MYSQL_ROOT_PASSWORD=$params.PASSWORD -p $params.PORT:3306 $params.ENVIRONMENT_NAME:latest
                     """
                     sh """
                     while ! nc -z localhost 3306; do sleep 0.1;done 
                     """
                     sh """
-                    docker exec ${containerName} /bin/bash -c 'mysql --user="root" --password="$params.MYSQL_PASSWORD" < /scripts/create_developer.sql'
+                    docker exec ${containerName} /bin/bash -c 'mysql --user="root" --password="$params.PASSWORD" < /scripts/create_developer.sql'
                     """
 
                     echo "Docker container created: $containerName"
                 } else if (params.DB_ENGINE == 'postgres') {
                     
                     sh """
-                    docker run -itd --name ${containerName}-postgres --rm -e POSTGRES_PASSWORD=$params.POSTGRES_PASSWORD -p 5432:5432 postgres
+                    docker run -itd --name ${containerName}-postgres --rm -e POSTGRES_PASSWORD=$params.POSTGRES_PASSWORD -p $params.PORT:5432 $params.ENVIRONMENT_NAME:latest
                     """
                     sh """
                     while ! nc -z localhost 5432; do sleep 0.1;done
                     """
                     sh """
-                    docker exec ${containerName}-postgres /bin/bash -c 'postgres --user="root" --password="$params.POSTGRES_PASSWORD" < /scripts/create_developer.sql'
+                    docker exec ${containerName}-postgres /bin/bash -c 'postgres --user="root" --password="$params.PASSWORD" < /scripts/create_developer.sql'
                     """
                 } else if (params.DB_ENGINE == 'oraclexe') {
                     sh """
-                    docker run -itd --name ${containerName}-oraclexe --rm -e ORACLEXE_PASSWORD=$params.ORACLEXE_PASSWORD -p 1521:1521 oraclexe
+                    docker run -itd --name ${containerName}-oraclexe --rm -e ORACLEXE_PASSWORD=$params.PASSWORD -p $params.PORT:1521 $params.ENVIRONMENT_NAME:latest
                     """
                     sh """
                     while ! nc -z localhost 5432; do sleep 0.1;done
                     """
                     sh """
-                    docker exec ${containerName} /bin/bash -c 'oraclexe --user="root" --password="$params.ORACLEXE_PASSWORD" < /scripts/create_developer.sql'
+                    docker exec ${containerName} /bin/bash -c 'oraclexe --user="root" --password="$params.PASSWORD" < /scripts/create_developer.sql'
                     """
                 }
 
