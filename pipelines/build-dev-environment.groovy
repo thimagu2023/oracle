@@ -53,9 +53,19 @@ pipeline {
                     sed 's/<PASSWORD>/$params.MYSQL_PASSWORD/g' pipelines/include/create_developer.template > pipelines/include/create_developer.sql
                     """
 
-                    sh """
-                    docker build pipelines/ -t $params.ENVIRONMENT_NAME:latest
-                    """
+                    if (params.DB_ENGINE == 'mysql') {
+                        sh """
+                        docker build pipelines/ -t $params.ENVIRONMENT_NAME:latest -f Dockerfile.mysql
+                        """
+                    } else if (params.DB_ENGINE == 'oracleXE') {
+                        sh """
+                        docker build pipelines/ -t $params.ENVIRONMENT_NAME:latest -f Dockerfile.oracle
+                        """
+                    } else if (params.DB_ENGINE == 'postgres') {
+                        sh """
+                        docker build pipelines/ -t $params.ENVIRONMENT_NAME:latest -f Dockerfile.postgres
+                        """
+                    }
 
                 }else{
                     echo "Skipping STEP1"
@@ -69,17 +79,24 @@ pipeline {
                 
                 def dateTime = (sh(script: "date +%Y%m%d%H%M%S", returnStdout: true).trim())
                 def containerName = "${params.ENVIRONMENT_NAME}_${dateTime}"
-                sh """
-                docker run -itd --name ${containerName} --rm -e MYSQL_ROOT_PASSWORD=$params.MYSQL_PASSWORD -p $params.MYSQL_PORT:3306 $params.ENVIRONMENT_NAME:latest
-                """
-                //sh """
-                //while ! nc -z localhost 3306; do sleep 0.1;done 
-                //"""
-                sh """
-                docker exec ${containerName} /bin/bash -c 'mysql --user="root" --password="$params.MYSQL_PASSWORD" < /scripts/create_developer.sql'
-                """
+                
+                if (params.DB_ENGINE == 'mysql') {
+                    sh """
+                    docker run -itd --name ${containerName} --rm -e MYSQL_ROOT_PASSWORD=$params.MYSQL_PASSWORD -p $params.MYSQL_PORT:3306 $params.ENVIRONMENT_NAME:latest
+                    """
+                    //sh """
+                    //while ! nc -z localhost 3306; do sleep 0.1;done 
+                    //"""
+                    sh """
+                    docker exec ${containerName} /bin/bash -c 'mysql --user="root" --password="$params.MYSQL_PASSWORD" < /scripts/create_developer.sql'
+                    """
 
-                echo "Docker container created: $containerName"
+                    echo "Docker container created: $containerName"
+                } else if (params.DB_ENGINE == 'oracleXE') {
+                    // run oracle container
+                } else if (params.DB_ENGINE == 'postgres') {
+                    // run postgres container
+                }
 
               }
             }
