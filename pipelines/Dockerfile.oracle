@@ -1,0 +1,7 @@
+FROM oracle/database:18.4.0-xe
+
+COPY include/create_developer.sql /scripts/
+
+EXPOSE 1521 8080
+
+CMD ["/bin/bash", "-c", "source /home/oracle/.bashrc; exec bash"]
