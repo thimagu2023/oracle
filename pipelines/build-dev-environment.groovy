@@ -13,7 +13,7 @@ pipeline {
         string name: 'MYSQL_PORT', trim: true  
         choice(
             name: 'DB_ENGINE',
-            choices: ['oracleXE', 'postgresql'],
+            choices: ['mysql', 'oracleXE', 'postgresql'],
             description: 'Choose the database engine to use'
         )
 
