@@ -1,0 +1,17 @@
+CREATE USER developer WITH PASSWORD '<PASSWORD>';
+GRANT CONNECT, TEMPORARY, CREATE, USAGE ON DATABASE devapp TO developer;
+
+CREATE TABLE departments (
+id SERIAL PRIMARY KEY,
+DEPT INTEGER,
+DEPT_NAME VARCHAR(250),
+CHECK (DEPT >= 0 AND DEPT <= 9999)
+);
+
+INSERT INTO departments (DEPT, DEPT_NAME)
+VALUES
+(1000, 'Department A'),
+(2000, 'Department B'),
+(3000, 'Department C'),
+(4000, 'Department D'),
+(5000, 'Department E');
