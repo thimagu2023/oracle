@@ -11,6 +11,11 @@ pipeline {
         string name: 'ENVIRONMENT_NAME', trim: true     
         password defaultValue: '', description: 'Password to use for MySQL container - root user', name: 'MYSQL_PASSWORD'
         string name: 'MYSQL_PORT', trim: true  
+        choice(
+            name: 'DB_ENGINE',
+            choices: ['oracleXE', 'postgresql'],
+            description: 'Choose the database engine to use'
+        )
 
         booleanParam(name: 'SKIP_STEP_1', defaultValue: false, description: 'STEP 1 - RE-CREATE DOCKER IMAGE')
     }
