@@ -85,7 +85,7 @@ pipeline {
                     docker run -itd --name ${containerName} --rm -e MYSQL_ROOT_PASSWORD=$params.PASSWORD -p $params.PORT:3306 $params.ENVIRONMENT_NAME:latest
                     """
                     sh """
-                    while ! nc -z localhost 3306; do sleep 0.1;done 
+                    while ! nc -z localhost $params.PORT; do sleep 0.1;done 
                     """
                     sh """
                     docker exec ${containerName} /bin/bash -c 'mysql --user="root" --password="$params.PASSWORD" < /scripts/create_developer.sql'
@@ -98,7 +98,7 @@ pipeline {
                     docker run -itd --name ${containerName}-postgres --rm -e POSTGRES_PASSWORD=$params.POSTGRES_PASSWORD -p $params.PORT:5432 $params.ENVIRONMENT_NAME:latest
                     """
                     sh """
-                    while ! nc -z localhost 5432; do sleep 0.1;done
+                    while ! nc -z localhost $params.PORT; do sleep 0.1;done
                     """
                     sh """
                     docker exec ${containerName}-postgres /bin/bash -c 'postgres --user="root" --password="$params.PASSWORD" < /scripts/create_developer.sql'
@@ -108,7 +108,7 @@ pipeline {
                     docker run -itd --name ${containerName}-oraclexe --rm -e ORACLEXE_PASSWORD=$params.PASSWORD -p $params.PORT:1521 $params.ENVIRONMENT_NAME:latest
                     """
                     sh """
-                    while ! nc -z localhost 5432; do sleep 0.1;done
+                    while ! nc -z localhost $params.PORT; do sleep 0.1;done
                     """
                     sh """
                     docker exec ${containerName} /bin/bash -c 'oraclexe --user="root" --password="$params.PASSWORD" < /scripts/create_developer.sql'
