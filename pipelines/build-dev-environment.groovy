@@ -92,9 +92,15 @@ pipeline {
                     """
 
                     echo "Docker container created: $containerName"
-                } else if (params.DB_ENGINE == 'oracleXE') {
-                    // run oracle container
                 } else if (params.DB_ENGINE == 'postgres') {
+                    
+                    sh """
+                    docker run -itd --name ${containerName}-postgres --rm -e POSTGRES_PASSWORD=$params.POSTGRES_PASSWORD -p 5432:5432 postgres
+                    """
+                    sh """
+                    while ! nc -z localhost 5432; do sleep 0.1;done
+                    """
+                } else if (params.DB_ENGINE == 'oracleXE') {
                     // run postgres container
                 }
 
