@@ -49,19 +49,25 @@ pipeline {
               script {
                 if (!params.SKIP_STEP_1){    
                     echo "Creating docker image with name $params.ENVIRONMENT_NAME using port: $params.PORT"
-                    sh """
-                    sed 's/<PASSWORD>/$params.PASSWORD/g' pipelines/include/create_developer.template > pipelines/include/create_developer.sql
-                    """
 
                     if (params.DB_ENGINE == 'mysql') {
+                        sh """
+                        sed 's/<PASSWORD>/$params.PASSWORD/g' pipelines/include/mysql_developer.template > pipelines/include/create_developer.sql
+                        """
                         sh """
                         docker build pipelines/ -t $params.ENVIRONMENT_NAME:latest -f pipelines/Dockerfile.mysql
                         """
                     } else if (params.DB_ENGINE == 'oraclexe') {
                         sh """
+                        sed 's/<PASSWORD>/$params.PASSWORD/g' pipelines/include/oraclexe_developer.template > pipelines/include/create_developer.sql
+                        """
+                        sh """
                         docker build pipelines/ -t $params.ENVIRONMENT_NAME:latest -f pipelines/Dockerfile.oraclexe
                         """
                     } else if (params.DB_ENGINE == 'postgres') {
+                        sh """
+                        sed 's/<PASSWORD>/$params.PASSWORD/g' pipelines/include/postgres_developer.template > pipelines/include/create_developer.sql
+                        """
                         sh """
                         docker build pipelines/ -t $params.ENVIRONMENT_NAME:latest -f pipelines/Dockerfile.postgres
                         """
