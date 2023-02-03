@@ -14,7 +14,7 @@ pipeline {
             description: 'Choose the database engine to use'
         )
         string name: 'ENVIRONMENT_NAME', trim: true     
-        password defaultValue: '', description: 'Password to use for MySQL container - root user', name: 'PASSWORD'
+        password defaultValue: '', description: 'Password to use for DB container - root user', name: 'PASSWORD'
         string name: 'PORT', trim: true  
 
         booleanParam(name: 'SKIP_STEP_1', defaultValue: false, description: 'STEP 1 - RE-CREATE DOCKER IMAGE')
@@ -55,15 +55,15 @@ pipeline {
 
                     if (params.DB_ENGINE == 'mysql') {
                         sh """
-                        docker build pipelines/ -t $params.ENVIRONMENT_NAME:latest -f Dockerfile.mysql
+                        docker build pipelines/ -t $params.ENVIRONMENT_NAME:latest -f pipelines/Dockerfile.mysql
                         """
                     } else if (params.DB_ENGINE == 'oraclexe') {
                         sh """
-                        docker build pipelines/ -t $params.ENVIRONMENT_NAME:latest -f Dockerfile.oraclexe
+                        docker build pipelines/ -t $params.ENVIRONMENT_NAME:latest -f pipelines/Dockerfile.oraclexe
                         """
                     } else if (params.DB_ENGINE == 'postgres') {
                         sh """
-                        docker build pipelines/ -t $params.ENVIRONMENT_NAME:latest -f Dockerfile.postgres
+                        docker build pipelines/ -t $params.ENVIRONMENT_NAME:latest -f pipelines/Dockerfile.postgres
                         """
                     }
 
