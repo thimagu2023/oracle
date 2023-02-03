@@ -10,7 +10,7 @@ pipeline {
     parameters {
         choice(
             name: 'DB_ENGINE',
-            choices: ['mysql', 'oracleXE', 'postgresql'],
+            choices: ['mysql', 'oraclexe', 'postgresql'],
             description: 'Choose the database engine to use'
         )
         string name: 'ENVIRONMENT_NAME', trim: true     
@@ -57,9 +57,9 @@ pipeline {
                         sh """
                         docker build pipelines/ -t $params.ENVIRONMENT_NAME:latest -f Dockerfile.mysql
                         """
-                    } else if (params.DB_ENGINE == 'oracleXE') {
+                    } else if (params.DB_ENGINE == 'oraclexe') {
                         sh """
-                        docker build pipelines/ -t $params.ENVIRONMENT_NAME:latest -f Dockerfile.oracle
+                        docker build pipelines/ -t $params.ENVIRONMENT_NAME:latest -f Dockerfile.oraclexe
                         """
                     } else if (params.DB_ENGINE == 'postgres') {
                         sh """
@@ -100,8 +100,19 @@ pipeline {
                     sh """
                     while ! nc -z localhost 5432; do sleep 0.1;done
                     """
-                } else if (params.DB_ENGINE == 'oracleXE') {
-                    // run postgres container
+                    sh """
+                    docker exec ${containerName}-postgres /bin/bash -c 'postgres --user="root" --password="$params.POSTGRES_PASSWORD" < /scripts/create_developer.sql'
+                    """
+                } else if (params.DB_ENGINE == 'oraclexe') {
+                    sh """
+                    docker run -itd --name ${containerName}-oraclexe --rm -e ORACLEXE_PASSWORD=$params.ORACLEXE_PASSWORD -p 1521:1521 oraclexe
+                    """
+                    sh """
+                    while ! nc -z localhost 5432; do sleep 0.1;done
+                    """
+                    sh """
+                    docker exec ${containerName} /bin/bash -c 'oraclexe --user="root" --password="$params.ORACLEXE_PASSWORD" < /scripts/create_developer.sql'
+                    """
                 }
 
               }
