@@ -1,0 +1,7 @@
+FROM postgres:latest
+
+COPY include/create_developer.sql /scripts/
+
+EXPOSE 5432
+
+CMD ["postgres"]
